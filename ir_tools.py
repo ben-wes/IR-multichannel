@@ -72,7 +72,32 @@ def writewav(filename, ch_data, samplerate):
     wavdata = np.column_stack([data for data in ch_data])
     wavfile.write(filename, samplerate, wavdata)
     print(f'{len(ch_data)}-channel audio written to {filename}')
-    
+
+def array_bounds(data, threshold):
+    start = 0
+    end = 0
+    for i, value in enumerate(data):
+        if abs(value) > threshold:
+            start = i
+            break
+    for i, value in enumerate(data[::-1]):
+        if abs(value) > threshold:
+            end = len(data) - i
+            break
+    return start, end
+
+def crop_channels(ch_data, threshold):
+    start = ch_data[0].size
+    end = 0
+    return_data = []
+    for data in ch_data:
+        _start, _end = array_bounds(data, threshold)
+        if _start < start: start = _start
+        if _end > end: end = _end
+    for data in ch_data:
+        return_data.append(data[start:end])
+    return return_data
+
 def display_audio(data, samplerate, color, title, duration=0):
     if not duration:
         duration = len(data) / samplerate
@@ -80,7 +105,7 @@ def display_audio(data, samplerate, color, title, duration=0):
     plt.figure(figsize=(18, 2))
     plt.title(title)
     plt.plot(time, data[:int(duration*samplerate)], color=color, linewidth=0.2)
-    plt.xlabel('Time (s)')
+    plt.xlabel('Seconds')
     plt.box(False)
     plt.show()
     display(Audio(data, rate=samplerate))
