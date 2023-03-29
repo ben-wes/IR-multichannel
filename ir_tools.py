@@ -4,6 +4,8 @@ from scipy.io import wavfile
 import matplotlib.pyplot as plt
 from IPython.display import Audio 
 from IPython.core.display import display
+import warnings
+warnings.filterwarnings('ignore')
 
 def padarray(A, length, before=0):
     t = length - len(A) - before
