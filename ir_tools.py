@@ -71,7 +71,7 @@ def readwav(filename):
 def writewav(filename, ch_data, samplerate):
     wavdata = np.column_stack([data for data in ch_data])
     wavfile.write(filename, samplerate, wavdata)
-    print(f'{len(ch_data)}-channel audio written to {filename}')
+    print(f'{len(ch_data)}-channel audio written to "{filename}"')
 
 def array_bounds(data, threshold):
     start = 0
