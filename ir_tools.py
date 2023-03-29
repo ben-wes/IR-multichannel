@@ -73,12 +73,13 @@ def writewav(filename, ch_data, samplerate):
     wavfile.write(filename, samplerate, wavdata)
     print(f'{len(ch_data)}-channel audio written to {filename}')
     
-def display_audio(data, samplerate, color, title, length=0):
-    duration = length if length else len(data) / samplerate
-    time = np.linspace(0, duration, num=duration*samplerate)
+def display_audio(data, samplerate, color, title, duration=0):
+    if not duration:
+        duration = len(data) / samplerate
+    time = np.linspace(0, duration, num=int(duration*samplerate))
     plt.figure(figsize=(18, 2))
     plt.title(title)
-    plt.plot(time, data[:duration*samplerate], color=color, linewidth=0.2)
+    plt.plot(time, data[:int(duration*samplerate)], color=color, linewidth=0.2)
     plt.xlabel('Time (s)')
     plt.box(False)
     plt.show()
