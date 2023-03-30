@@ -84,7 +84,7 @@ def array_bounds(data, threshold):
             break
     return start, end
 
-def crop_channels(ch_data, threshold):
+def crop(ch_data, threshold):
     start = ch_data[0].size
     end = 0
     return_data = []
@@ -96,7 +96,7 @@ def crop_channels(ch_data, threshold):
         return_data.append(data[start:end])
     return return_data
 
-def limit_channels(ch_data, option=None):
+def limit(ch_data, option=None):
     return_data = []
     if option == 'clip':
         for data in ch_data:
