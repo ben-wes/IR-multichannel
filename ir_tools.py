@@ -21,9 +21,6 @@ def filter20_20k(x, sr): # filters everything outside of 20 - 20_000 Hz
     sos = signal.butter(5, [20.0 / nyq, 20_000.0 / nyq], btype='band', output='sos')
     return signal.sosfilt(sos, x)
 
-def ratio(dB):
-    return np.power(10, dB * 1.0 / 20)
-
 def deconvolve(a, b, sr): # per mono file
     # a is the input sweep signal, h the impulse response, and b the microphone-recorded signal. 
     # We have a * h = b (convolution here!). 
@@ -44,7 +41,6 @@ def deconvolve(a, b, sr): # per mono file
     h1 = filter20_20k(h1, sr)
 
     h = h1[:10 * sr]
-    h *= ratio(dB=40)
     return h
 
 def readwav(filename):
@@ -100,31 +96,31 @@ def crop_channels(ch_data, threshold):
         return_data.append(data[start:end])
     return return_data
 
-def clip_channels(ch_data):
+def limit_channels(ch_data, option=None):
     return_data = []
-    for data in ch_data:
-        return_data.append(np.clip(data, -1, 1))
-    return return_data
-
-def normalize_channels(ch_data):
-    max_value = 0
-    for data in ch_data:
-        _max_value = max(abs(data.min()), data.max())
-        if _max_value > max_value: max_value = _max_value
-    return_data = []
-    for data in ch_data:
-        return_data.append(data / max_value)
-    for data in return_data:
-        print(data.shape)
-    return return_data
+    if option == 'clip':
+        for data in ch_data:
+            return_data.append(np.clip(data, -1, 1))
+        return return_data
+    elif option == 'normalize':
+        max_value = 0
+        for data in ch_data:
+            _max_value = max(abs(data.min()), data.max())
+            if _max_value > max_value: max_value = _max_value
+        for data in ch_data:
+            return_data.append(data / max_value)
+        return return_data
+    return ch_data
 
 def display_audio(data, samplerate, color, title, duration=0):
+    display_data = data[:int(duration*samplerate)]
     if not duration:
         duration = len(data) / samplerate
-    time = np.linspace(0, duration, num=int(duration*samplerate))
+    size = min(display_data.size, int(duration*samplerate))
+    time = np.linspace(0, duration, num=size)
     plt.figure(figsize=(18, 2))
     plt.title(title)
-    plt.plot(time, data[:int(duration*samplerate)], color=color, linewidth=0.2)
+    plt.plot(time, display_data, color=color, linewidth=0.2)
     plt.xlabel('Seconds')
     plt.box(False)
     plt.show()
