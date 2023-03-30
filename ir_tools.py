@@ -49,12 +49,13 @@ def deconvolve(a, b, sr): # per mono file
 
 def readwav(filename):
     samplerate, data = wavfile.read(filename)
-    data_type = data.dtype
-    if data_type == np.int8:
+
+    # Normalize input to 32bit float
+    if data.dtype == np.int8:
         data = np.float32(data / (2**(24-1)))
-    if data_type == np.int16:
+    elif data.dtype == np.int16:
         data = np.float32(data / (2**(16-1)))
-    if data_type == np.int32:
+    elif data.dtype == np.int32:
         data = np.float32(data / (2**(32-1)))
 
     nch = 1
@@ -74,12 +75,13 @@ def writewav(filename, ch_data, samplerate):
     print(f'{len(ch_data)}-channel audio written to "{filename}"')
 
 def array_bounds(data, threshold):
-    start = 0
-    end = 0
+    start = end = 0
+    # Scan from start
     for i, value in enumerate(data):
         if abs(value) > threshold:
             start = i
             break
+    # Scan from end
     for i, value in enumerate(data[::-1]):
         if abs(value) > threshold:
             end = len(data) - i
@@ -96,6 +98,24 @@ def crop_channels(ch_data, threshold):
         if _end > end: end = _end
     for data in ch_data:
         return_data.append(data[start:end])
+    return return_data
+
+def clip_channels(ch_data):
+    return_data = []
+    for data in ch_data:
+        return_data.append(np.clip(data, -1, 1))
+    return return_data
+
+def normalize_channels(ch_data):
+    max_value = 0
+    for data in ch_data:
+        _max_value = max(abs(data.min()), data.max())
+        if _max_value > max_value: max_value = _max_value
+    return_data = []
+    for data in ch_data:
+        return_data.append(data / max_value)
+    for data in return_data:
+        print(data.shape)
     return return_data
 
 def display_audio(data, samplerate, color, title, duration=0):
