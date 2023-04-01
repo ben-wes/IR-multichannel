@@ -16,6 +16,7 @@ The help will guide you through the parameters and optional settings:
 `./deconvolve.py -h`
 ```
 usage: deconvolve.py [-h] [--limit {normalize,clip}] [--crop <threshold>] [--bitdepth <bitdepth>]
+                     [--amp <amplification>]
                      sweepfile recfile outfile
 
 positional arguments:
@@ -30,6 +31,8 @@ options:
   --crop <threshold>    Crop resulting samples below threshold at start and end
   --bitdepth <bitdepth>
                         Set bit depth for outfile (defaults to 24)
+  --amp <amplification>
+                        Amplify resulting impulse response by given dB value
 ```
 
 ## Creating your own IRs
