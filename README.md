@@ -1,13 +1,39 @@
 # IR-multichannel
-Calculate multichannel IR files through deconvolution of a recorded sweep with a Jupyter notebook.
+Calculate multichannel IR files through deconvolution of a recorded sine sweep
 
-If you do not have Jupyter, install it from https://jupyter.org/install
+Examples and Jupyter notebook included to illustrate the process.
+To open the notebook, you need to have Jupyter installed (see https://jupyter.org/install).
 
-Download and copy all code to a folder on your computer. 
+## Instructions for Jupyter notebook
+* Download or clone this repository to a new folder on your computer. 
+* Run Jupyter from a terminal in this folder via `jupyter notebook`.
+* Open the Jupyter notebook `IR-Qq-multichannel.ipynb` and execute the cells from top to bottom. 
 
-Run Jupyter from a terminal via "jupyter notebook", open the Jupyter notebook example and execute the cells from top to bottom. 
+## Instructions for command line
+You can also simply run the `deconvolve.py` file from your command line (after `chmod +x deconvolve.py`).
 
-Try to run the examples using mono, stereo and 4 channels wave files of recorded sweeps. Some examples The folder also contains the original sweep file (mono). 
+The help will guide you through the parameters and optional settings:
+`./deconvolve.py -h`
+```
+usage: deconvolve.py [-h] [--limit {normalize,clip}] [--crop <threshold>] [--bitdepth <bitdepth>]
+                     sweepfile recfile outfile
+
+positional arguments:
+  sweepfile             filename of original sweep
+  recfile               filename of recorded sweep (mono or multichannel)
+  outfile               filename for extracted impulse response (channels identical to recfile)
+
+options:
+  -h, --help            show this help message and exit
+  --limit {normalize,clip}
+                        Normalize or clip resulting amplitudes
+  --crop <threshold>    Crop resulting samples below threshold at start and end
+  --bitdepth <bitdepth>
+                        Set bit depth for outfile (defaults to 24)
+```
+
+## Creating your own IRs
+A mono sweep is included in the repository. Record the sweep in a room with a microphone (mono, stereo or arbitrary number of channels) and follow instructions in notebook.
 
 This code generates IR files with the same number of channels as the recorded sweep you are using.
 
