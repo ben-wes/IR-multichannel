@@ -86,7 +86,7 @@ class WavFromFile:
 def writewav(filename, ch_data, samplerate, bitdepth):
     wavdata = np.column_stack([data for data in ch_data])
     wavio.write(filename, wavdata, samplerate, sampwidth=bitdepth//8)
-    print(f'File "{filename}" written ({len(ch_data)} channels, {bitdepth} bit, {samplerate}Hz samplerate)')
+    print(f'File "{filename}" written ({len(ch_data)} channels, {bitdepth}bit, {samplerate}Hz samplerate)')
 
 def array_bounds(data, threshold):
     start = end = 0
@@ -159,5 +159,5 @@ if __name__ == '__main__':
         ir.append(ir_channel)
     wave = crop(limit(np.array(ir), args.limit), args.crop)
     print(wave.shape)
-    writewav(args.outfile, wave*args.amp, recording.samplerate, args.bitdepth)
+    writewav(args.outfile, wave*ratio(args.amp), recording.samplerate, args.bitdepth)
     
