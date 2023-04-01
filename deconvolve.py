@@ -16,7 +16,10 @@ def padarray(A, length, before=0):
     else:
         width = (before, 0) if A.ndim == 1 else ([before, 0], [0, 0])
         return np.pad(A[:length - before], pad_width=width, mode='constant')
-    
+
+def ratio(dB):
+    return np.power(10, dB * 1.0 / 20)
+
 def filter20_20k(x, sr):
     '''
     filters everything outside of 20 - 20_000 Hz
@@ -50,6 +53,8 @@ def deconvolve(a, b, sr): # per mono file
     h = h1[:10 * sr]
     return h
 
+def np_array(a):
+    return np.array(a)
 
 class WavFromFile:
     def __init__(self, filename):
@@ -97,7 +102,7 @@ def array_bounds(data, threshold):
             break
     return start, end
 
-def crop(ch_data, threshold):
+def crop(ch_data, threshold): # FIXME: not efficient
     start = ch_data[0].size
     end = 0
     return_data = []
@@ -107,23 +112,13 @@ def crop(ch_data, threshold):
         if _end > end: end = _end
     for data in ch_data:
         return_data.append(data[start:end])
-    return return_data
+    return np.array(return_data)
 
-def limit(ch_data, option=None):
-    return_data = []
+def limit(data, option=None):
     if option == 'clip':
-        for data in ch_data:
-            return_data.append(np.clip(data, -1, 1))
-        return return_data
+        return np.clip(data, -1, 1)
     elif option == 'normalize':
-        max_value = 0
-        for data in ch_data:
-            _max_value = max(abs(data.min()), data.max())
-            if _max_value > max_value: max_value = _max_value
-        for data in ch_data:
-            return_data.append(data / max_value)
-        return return_data
-    return ch_data
+        return data / max(data.max(), abs(data.min()))
 
 def display_audio(data, samplerate, color, title, duration=0):
     from IPython.display import Audio
@@ -142,6 +137,7 @@ def display_audio(data, samplerate, color, title, duration=0):
     plt.show()
     display(Audio(data=data, rate=samplerate))
 
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
 
@@ -152,6 +148,7 @@ if __name__ == '__main__':
     parser.add_argument('--limit', choices=['normalize', 'clip'], help='Normalize or clip resulting amplitudes')
     parser.add_argument('--crop', metavar='<threshold>', default=0, type=float, help='Crop resulting samples below threshold at start and end')
     parser.add_argument('--bitdepth', metavar='<bitdepth>', default=24, type=int, help='Set bit depth for outfile (defaults to 24)')
+    parser.add_argument('--amp', metavar='<amplification>', default=0, type=float, help='Amplify resulting impulse response by given dB value')
     args = parser.parse_args()
 
     sweep = WavFromFile(args.sweepfile)
@@ -160,6 +157,7 @@ if __name__ == '__main__':
     for rec in recording.data:
         ir_channel = deconvolve(sweep.data[0], rec, sweep.samplerate)
         ir.append(ir_channel)
-    wave = crop(limit(ir, args.limit), args.crop)
-    writewav(args.outfile, wave, recording.samplerate, args.bitdepth)
+    wave = crop(limit(np.array(ir), args.limit), args.crop)
+    print(wave.shape)
+    writewav(args.outfile, wave*args.amp, recording.samplerate, args.bitdepth)
     
